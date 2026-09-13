@@ -1,0 +1,227 @@
+{
+  "info": {
+    "name": "Productos API - ACA",
+    "_postman_id": "aca-productos-api-001",
+    "description": "Colección de pruebas funcionales de la API de productos (FastAPI).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Health check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "health"
+          ]
+        },
+        "description": "Verifica que el servicio esté arriba."
+      }
+    },
+    {
+      "name": "01 - Listar productos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/productos",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "productos"
+          ]
+        },
+        "description": "Devuelve los 8 productos del inventario."
+      }
+    },
+    {
+      "name": "02 - Precio mayor a 100000",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/productos/precio-mayor?valor=100000",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "productos",
+            "precio-mayor?valor=100000"
+          ],
+          "query": [
+            {
+              "key": "valor",
+              "value": "100000"
+            }
+          ]
+        },
+        "description": "Operación 1: productos con precio mayor a $100.000."
+      }
+    },
+    {
+      "name": "03 - Valor total del inventario",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/inventario/valor-total",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "inventario",
+            "valor-total"
+          ]
+        },
+        "description": "Operación 2: suma de precio x stock. Esperado: 59.850.000"
+      }
+    },
+    {
+      "name": "04 - Producto con mayor stock",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/productos/mayor-stock",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "productos",
+            "mayor-stock"
+          ]
+        },
+        "description": "Operación 3: esperado Mouse Logitech con 25 unidades."
+      }
+    },
+    {
+      "name": "05 - Productos de Tecnologia",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/productos/categoria/Tecnología",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "productos",
+            "categoria",
+            "Tecnología"
+          ]
+        },
+        "description": "Operación 4: esperado 4 productos."
+      }
+    },
+    {
+      "name": "06 - Buscar producto por id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/productos/3",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "productos",
+            "3"
+          ]
+        },
+        "description": "Operación 5: esperado Teclado Mecánico."
+      }
+    },
+    {
+      "name": "07 - Conteo por categoria",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/productos/conteo-por-categoria",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "productos",
+            "conteo-por-categoria"
+          ]
+        },
+        "description": "Operación 6: Tecnología 4, Muebles 2, Audio 2."
+      }
+    },
+    {
+      "name": "08 - Producto inexistente (404)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/productos/99",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "productos",
+            "99"
+          ]
+        },
+        "description": "Caso negativo: debe responder 404 con código PRODUCTO_NO_ENCONTRADO."
+      }
+    },
+    {
+      "name": "09 - Crear producto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/productos",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "productos"
+          ]
+        },
+        "description": "Registra un producto nuevo. Debe responder 201.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Webcam Logitech\",\n  \"precio\": 290000,\n  \"stock\": 14,\n  \"categoria\": \"Tecnología\"\n}"
+        }
+      }
+    }
+  ]
+}
