@@ -2,13 +2,13 @@
   "info": {
     "name": "Productos API",
     "_postman_id": "aca-productos-api-001",
-    "description": "Pruebas funcionales de Productos API (FastAPI). Cambia la variable base_url de la colección por la URL pública para probar el servicio desplegado. Cada petición trae pruebas automáticas: ejecútala con Run collection para ver el resultado de todas.",
+    "description": "Pruebas funcionales de Productos API (FastAPI). La variable base_url apunta a la API publicada en Render; para probar en local cámbiala por http://127.0.0.1:8000. Cada petición trae pruebas automáticas: usa Run collection para ver el resultado de todas. Las peticiones 12 y 13 crean un producto en el servidor.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "base_url",
-      "value": "http://127.0.0.1:8000"
+      "value": "https://productos-api-w4be.onrender.com"
     },
     {
       "key": "producto_creado_id",

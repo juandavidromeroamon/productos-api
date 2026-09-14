@@ -3,6 +3,9 @@
 API REST para gestionar un inventario de productos, construida con **Python 3.12** y **FastAPI**
 sobre una arquitectura por capas (dominio, aplicación, infraestructura y presentación).
 
+- **API publicada:** https://productos-api-w4be.onrender.com
+- **Documentación interactiva:** https://productos-api-w4be.onrender.com/docs
+
 ## Ejecución
 
 ```bash
@@ -35,7 +38,7 @@ pytest
 | POST | `/api/v1/productos` | Registra un producto |
 | GET | `/health` | Estado del servicio |
 
-La colección de Postman está en `docs/postman_collection.json`.
+La colección de Postman está en `docs/postman_collection.json` y ya apunta a la API publicada.
 
 ## Arquitectura
 
