@@ -1,69 +1,97 @@
 {
   "info": {
-    "name": "Productos API - ACA",
+    "name": "Productos API",
     "_postman_id": "aca-productos-api-001",
-    "description": "Colección de pruebas funcionales de la API de productos (FastAPI).",
+    "description": "Pruebas funcionales de Productos API (FastAPI). Cambia la variable base_url de la colección por la URL pública para probar el servicio desplegado. Cada petición trae pruebas automáticas: ejecútala con Run collection para ver el resultado de todas.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "base_url",
       "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "producto_creado_id",
+      "value": ""
     }
   ],
   "item": [
     {
       "name": "00 - Health check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('El estado es ok', () => pm.expect(pm.response.json().status).to.eql('ok'));"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/health",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "health"
-          ]
+          "host": ["{{base_url}}"],
+          "path": ["health"]
         },
-        "description": "Verifica que el servicio esté arriba."
+        "description": "Verifica que el servicio esté arriba. En Render gratuito la primera petición puede tardar unos 30 segundos."
       }
     },
     {
       "name": "01 - Listar productos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const productos = pm.response.json();",
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Incluye al menos los 8 productos iniciales', () => pm.expect(productos.length).to.be.at.least(8));",
+              "pm.test('valor_en_inventario es precio x stock', () => productos.forEach(p => pm.expect(p.valor_en_inventario).to.eql(p.precio * p.stock)));"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/v1/productos",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "productos"
-          ]
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "productos"]
         },
-        "description": "Devuelve los 8 productos del inventario."
+        "description": "Devuelve todos los productos ordenados por id."
       }
     },
     {
       "name": "02 - Precio mayor a 100000",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const cuerpo = pm.response.json();",
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('El criterio es precio > 100,000', () => pm.expect(cuerpo.criterio).to.eql('precio > 100,000'));",
+              "pm.test('total coincide con la lista', () => pm.expect(cuerpo.total).to.eql(cuerpo.productos.length));",
+              "pm.test('Todos los precios superan 100.000', () => cuerpo.productos.forEach(p => pm.expect(p.precio).to.be.above(100000)));"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/v1/productos/precio-mayor?valor=100000",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "productos",
-            "precio-mayor?valor=100000"
-          ],
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "productos", "precio-mayor"],
           "query": [
             {
               "key": "valor",
@@ -76,127 +104,277 @@
     },
     {
       "name": "03 - Valor total del inventario",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const cuerpo = pm.response.json();",
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('La moneda es COP', () => pm.expect(cuerpo.moneda).to.eql('COP'));",
+              "pm.test('Valor total de al menos 59.850.000', () => pm.expect(cuerpo.valor_total).to.be.at.least(59850000));",
+              "pm.test('Al menos 8 productos y 91 unidades', () => {",
+              "    pm.expect(cuerpo.cantidad_productos).to.be.at.least(8);",
+              "    pm.expect(cuerpo.unidades_totales).to.be.at.least(91);",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/v1/inventario/valor-total",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "inventario",
-            "valor-total"
-          ]
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "inventario", "valor-total"]
         },
-        "description": "Operación 2: suma de precio x stock. Esperado: 59.850.000"
+        "description": "Operación 2: suma de precio x stock. Con el servidor recién iniciado: 59.850.000."
       }
     },
     {
       "name": "04 - Producto con mayor stock",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const producto = pm.response.json();",
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Es Mouse Logitech con 25 unidades', () => {",
+              "    pm.expect(producto.nombre).to.eql('Mouse Logitech');",
+              "    pm.expect(producto.stock).to.eql(25);",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/v1/productos/mayor-stock",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "productos",
-            "mayor-stock"
-          ]
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "productos", "mayor-stock"]
         },
         "description": "Operación 3: esperado Mouse Logitech con 25 unidades."
       }
     },
     {
-      "name": "05 - Productos de Tecnologia",
+      "name": "05 - Productos de Tecnología",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const cuerpo = pm.response.json();",
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Al menos 4 productos', () => pm.expect(cuerpo.total).to.be.at.least(4));",
+              "pm.test('Todos son de Tecnología', () => cuerpo.productos.forEach(p => pm.expect(p.categoria).to.eql('Tecnología')));"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/v1/productos/categoria/Tecnología",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "productos",
-            "categoria",
-            "Tecnología"
-          ]
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "productos", "categoria", "Tecnología"]
         },
-        "description": "Operación 4: esperado 4 productos."
+        "description": "Operación 4: esperado 4 productos con el servidor recién iniciado."
       }
     },
     {
-      "name": "06 - Buscar producto por id",
+      "name": "06 - Categoría sin tilde ni mayúscula",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const cuerpo = pm.response.json();",
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Encuentra los mismos productos de Tecnología', () => pm.expect(cuerpo.total).to.be.at.least(4));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/productos/categoria/tecnologia",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "productos", "categoria", "tecnologia"]
+        },
+        "description": "La búsqueda no distingue mayúsculas ni tildes: 'tecnologia' equivale a 'Tecnología'."
+      }
+    },
+    {
+      "name": "07 - Buscar producto por id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const producto = pm.response.json();",
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Es Teclado Mecánico', () => {",
+              "    pm.expect(producto.id).to.eql(3);",
+              "    pm.expect(producto.nombre).to.eql('Teclado Mecánico');",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/v1/productos/3",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "productos",
-            "3"
-          ]
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "productos", "3"]
         },
         "description": "Operación 5: esperado Teclado Mecánico."
       }
     },
     {
-      "name": "07 - Conteo por categoria",
+      "name": "08 - Conteo por categoría",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const cuerpo = pm.response.json();",
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Al menos 3 categorías', () => pm.expect(cuerpo.total_categorias).to.be.at.least(3));",
+              "pm.test('Muebles 2 y Audio 2', () => {",
+              "    pm.expect(cuerpo.conteo['Muebles']).to.eql(2);",
+              "    pm.expect(cuerpo.conteo['Audio']).to.eql(2);",
+              "});",
+              "pm.test('Tecnología con al menos 4', () => pm.expect(cuerpo.conteo['Tecnología']).to.be.at.least(4));"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/v1/productos/conteo-por-categoria",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "productos",
-            "conteo-por-categoria"
-          ]
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "productos", "conteo-por-categoria"]
         },
-        "description": "Operación 6: Tecnología 4, Muebles 2, Audio 2."
+        "description": "Operación 6: Tecnología 4, Muebles 2 y Audio 2 con el servidor recién iniciado."
       }
     },
     {
-      "name": "08 - Producto inexistente (404)",
+      "name": "09 - Producto inexistente (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 404', () => pm.response.to.have.status(404));",
+              "pm.test('Código PRODUCTO_NO_ENCONTRADO', () => pm.expect(pm.response.json().codigo).to.eql('PRODUCTO_NO_ENCONTRADO'));"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/v1/productos/99",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "productos",
-            "99"
-          ]
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "productos", "99"]
         },
-        "description": "Caso negativo: debe responder 404 con código PRODUCTO_NO_ENCONTRADO."
+        "description": "Caso negativo: un id que no existe responde 404."
       }
     },
     {
-      "name": "09 - Crear producto",
+      "name": "10 - Id no numérico (422)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const cuerpo = pm.response.json();",
+              "pm.test('Responde 422', () => pm.response.to.have.status(422));",
+              "pm.test('Código DATOS_INVALIDOS', () => pm.expect(cuerpo.codigo).to.eql('DATOS_INVALIDOS'));",
+              "pm.test('Señala el campo path.producto_id', () => pm.expect(cuerpo.errores[0].campo).to.eql('path.producto_id'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/productos/abc",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "productos", "abc"]
+        },
+        "description": "Caso negativo: el id debe ser un número entero."
+      }
+    },
+    {
+      "name": "11 - Precio mínimo inválido (422)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 422', () => pm.response.to.have.status(422));",
+              "pm.test('Código DATOS_INVALIDOS', () => pm.expect(pm.response.json().codigo).to.eql('DATOS_INVALIDOS'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/productos/precio-mayor?valor=0",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "productos", "precio-mayor"],
+          "query": [
+            {
+              "key": "valor",
+              "value": "0"
+            }
+          ]
+        },
+        "description": "Caso negativo: el valor debe ser mayor a 0."
+      }
+    },
+    {
+      "name": "12 - Crear producto",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const producto = pm.response.json();",
+              "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+              "pm.test('Asigna un id', () => pm.expect(producto.id).to.be.a('number'));",
+              "pm.test('Calcula valor_en_inventario = 4.060.000', () => pm.expect(producto.valor_en_inventario).to.eql(4060000));",
+              "pm.collectionVariables.set('producto_creado_id', producto.id);"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [
@@ -205,22 +383,88 @@
             "value": "application/json"
           }
         ],
-        "url": {
-          "raw": "{{base_url}}/api/v1/productos",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "productos"
-          ]
-        },
-        "description": "Registra un producto nuevo. Debe responder 201.",
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"nombre\": \"Webcam Logitech\",\n  \"precio\": 290000,\n  \"stock\": 14,\n  \"categoria\": \"Tecnología\"\n}"
+          "raw": "{\n  \"nombre\": \"Webcam Logitech\",\n  \"precio\": 290000,\n  \"stock\": 14,\n  \"categoria\": \"Tecnología\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/productos",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "productos"]
+        },
+        "description": "Registra un producto nuevo y guarda su id en la variable producto_creado_id."
+      }
+    },
+    {
+      "name": "13 - Buscar producto creado",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+              "pm.test('Es Webcam Logitech', () => pm.expect(pm.response.json().nombre).to.eql('Webcam Logitech'));"
+            ]
+          }
         }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/productos/{{producto_creado_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "productos", "{{producto_creado_id}}"]
+        },
+        "description": "Consulta el producto registrado en la petición anterior. Ejecuta primero la 12."
+      }
+    },
+    {
+      "name": "14 - Crear producto inválido (422)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const cuerpo = pm.response.json();",
+              "const campos = cuerpo.errores.map(e => e.campo);",
+              "pm.test('Responde 422', () => pm.response.to.have.status(422));",
+              "pm.test('Código DATOS_INVALIDOS', () => pm.expect(cuerpo.codigo).to.eql('DATOS_INVALIDOS'));",
+              "pm.test('Marca nombre, precio y stock', () => pm.expect(campos).to.include.members(['body.nombre', 'body.precio', 'body.stock']));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"   \",\n  \"precio\": 0,\n  \"stock\": -1,\n  \"categoria\": \"Tecnología\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/productos",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "productos"]
+        },
+        "description": "Caso negativo: nombre vacío, precio 0 y stock negativo."
       }
     }
   ]
